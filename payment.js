@@ -1,1 +1,1 @@
-console.log("payment")
+console.log('payment');
