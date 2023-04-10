@@ -19,7 +19,7 @@ const ProfileSidebar = async ({}) => {
         )}
         <div>
           <h2 className="text-xl">{session?.user.name}</h2>
-          <h5 className='text-sm'>{session?.user.email}</h5>
+          <h5 className="text-sm">{session?.user.email}</h5>
         </div>
       </div>
     </>

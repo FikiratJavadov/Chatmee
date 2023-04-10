@@ -1,5 +1,4 @@
 import AddFriendButton from '@/components/AddFriendForm';
-import { FC } from 'react';
 
 const Page = ({}) => {
   return (

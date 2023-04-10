@@ -3,6 +3,11 @@ import { LogOut, UserPlus, Users } from 'lucide-react';
 import Link from 'next/link';
 
 import LogoutButton from '@/components/LogoutButton';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { notFound } from 'next/navigation';
+import FriendRequestButton from '@/components/FriendRequestButton';
+import prisma from '@/lib/prisma';
 
 const icons = {
   AddFriend: UserPlus,
@@ -26,20 +31,29 @@ const sidebarOptions: SidebarOptionsType = [
     icons: 'AddFriend',
     text: 'Add friend',
   },
-
-  {
-    id: 2,
-    href: '/dashboard/requests',
-    icons: 'UserList',
-    text: 'Friend requests',
-  },
 ];
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const session = await getServerSession(authOptions);
+
+  //* Check if session exist
+  if (!session) {
+    return notFound();
+  }
+
+  //* Get the request count;
+  const friendRequests = await prisma.request.findMany({
+    where: {
+      recipientId: session.user.id,
+    },
+  });
+
+  const reuqestCount = friendRequests.length;
+
   return (
     <section className="grid grid-cols-[300px_1fr] min-h-screen">
       <div className="py-12 px-8 flex flex-col border-r ">
@@ -57,7 +71,7 @@ export default function DashboardLayout({
               <li key={option.id}>
                 <Link
                   href={option.href}
-                  className="flex items-center gap-3 text-lg hover:bg-gray-100 hover:text-red-600 rounded-md p-2"
+                  className="flex items-center gap-3 text-lg hover:bg-slate-200 rounded-md p-2"
                 >
                   <Icon />
                   <p>{option.text}</p>
@@ -65,6 +79,8 @@ export default function DashboardLayout({
               </li>
             );
           })}
+
+          <FriendRequestButton numberOfUnseenRequests={reuqestCount} />
         </ul>
 
         <div>
