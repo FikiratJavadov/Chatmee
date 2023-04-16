@@ -5,16 +5,6 @@ import { Prisma } from '@prisma/client';
 import { getServerSession } from 'next-auth';
 import { NextResponse } from 'next/server';
 
-export async function GET(request: Request) {
-  console.log('run');
-
-  return NextResponse.json({
-    statusText: 'success',
-    status: 201,
-    data: [],
-  });
-}
-
 type ReqBody = {
   email: string;
 };
@@ -55,8 +45,35 @@ export async function POST(request: Request) {
       });
     }
 
-    //* Check if requested user is not the requesting user
+    //* Check if you are already friends
 
+    const friendship = await prisma.friendShip.findFirst({
+      where: {
+        AND: [
+          {
+            OR: [
+              {
+                friendId: session.user.id,
+                userId: requestedUser.id,
+              },
+              {
+                friendId: requestedUser.id,
+                userId: session.user.id,
+              },
+            ],
+          },
+        ],
+      },
+    });
+
+    if (friendship) {
+      return new Response('You are already friends with this user', {
+        status: 400,
+        statusText: 'fail',
+      });
+    }
+
+    //* Check if requested user is not the requesting user
     if (requestedUser?.id === session?.user.id) {
       return new Response('You can not add yourseld as a friend', {
         status: 400,
@@ -84,8 +101,16 @@ export async function POST(request: Request) {
 
     const data = await prisma.request.create({
       data: {
-        senderId: session.user.id,
-        recipientId: requestedUser.id,
+        sender: {
+          connect: {
+            id: session.user.id,
+          },
+        },
+        recipient: {
+          connect: {
+            id: requestedUser.id,
+          },
+        },
       },
     });
 

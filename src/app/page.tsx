@@ -9,10 +9,9 @@ export const runtime = 'experimental-edge';
 const inter = Inter({ subsets: ['latin'] });
 
 export default async function Home() {
-  const res = await fetch('http://localhost:3000/api/chat');
-  const data = await res.json();
-
-  console.log(data);
-
-  return <h1 className="bg-red-500">This is server component</h1>;
+  return (
+    <h1 className="bg-red-500">
+      <Button>Button</Button>
+    </h1>
+  );
 }

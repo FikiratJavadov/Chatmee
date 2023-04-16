@@ -85,7 +85,7 @@ const AddFriendButton = ({}) => {
         >
           <div>
             <input
-              className="shadow focus:ring-2 placeholder:text-gray-400  appearance-none border rounded w-[300px] py-2.5 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              className="shadow focus:ring-2 placeholder:text-gray-400  appearance-none border rounded w-[300px] py-3 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               id="email"
               type="text"
               placeholder="Email"
@@ -93,7 +93,7 @@ const AddFriendButton = ({}) => {
             />
           </div>
 
-          <Button isLoading={loading} type="submit">
+          <Button size={'lg'} isLoading={loading} type="submit">
             Add
           </Button>
         </form>

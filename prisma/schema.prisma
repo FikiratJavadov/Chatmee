@@ -10,20 +10,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model Account {
-  id                 String  @id @default(cuid())
-  userId             String
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String?  @db.Text
-  access_token       String?  @db.Text
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String?  @db.Text
-  session_state      String?
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -44,47 +43,40 @@ enum Role {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  role          Role     @default(USER)
-  chats         Chat[]
-  recepientRequest       Request[] @relation("recepient")
-  sentRequests           Request[] @relation("sender")
-  messages      Message[]
-  accounts      Account[]
-  sessions      Session[]
+  id               String       @id @default(cuid())
+  name             String?
+  email            String?      @unique
+  emailVerified    DateTime?
+  image            String?
+  role             Role         @default(USER)
+  chats            Chat[]
+  recepientRequest Request[]    @relation("recepient")
+  sentRequests     Request[]    @relation("sender")
+  messages         Message[]
+  accounts         Account[]
+  sessions         Session[]
+  requestedFriends FriendShip[] @relation("friend")
+  acceptedFriends  FriendShip[] @relation("user")
 }
-
-
 
 model Chat {
-  id     String    @id @default(cuid())
-  participants  User[] 
-  messages Message[]  @relation("chat-messages")
-  lastMessage Message? 
-  createdAt    DateTime  @default(now())  
+  id           String    @id @default(cuid())
+  participants User[]
+  messages     Message[] @relation("chat-messages")
+  lastMessage  Message?
+  createdAt    DateTime  @default(now())
 }
 
-
-
-
 model Message {
-  id     String    @id @default(cuid())
-  content String
-
-  sender User @relation(fields: [userId], references: [id])
-  userId String
-
-  chat Chat  @relation("chat-messages",  fields: [chatId], references: [id])
-  chatId String
-
-  chatLastMessage Chat @relation(fields: [chatLastMessageId], references: [id])
-  chatLastMessageId String @unique
-
-  createdAt DateTime @default(now())
+  id                String   @id @default(cuid())
+  content           String
+  sender            User     @relation(fields: [userId], references: [id])
+  userId            String
+  chat              Chat     @relation("chat-messages", fields: [chatId], references: [id])
+  chatId            String
+  chatLastMessage   Chat     @relation(fields: [chatLastMessageId], references: [id])
+  chatLastMessageId String   @unique
+  createdAt         DateTime @default(now())
 }
 
 enum RequestStatus {
@@ -94,25 +86,24 @@ enum RequestStatus {
 }
 
 model Request {
-  id      String    @id @default(cuid())
-
-  sender  User @relation("sender",fields: [senderId], references: [id])
-  recipient User @relation("recepient", fields: [recipientId], references: [id])
-
-  senderId String
+  id          String        @id @default(cuid())
+  sender      User          @relation("sender", fields: [senderId], references: [id])
+  recipient   User          @relation("recepient", fields: [recipientId], references: [id])
+  senderId    String
   recipientId String
-
-  status RequestStatus @default(PENDING)
-
-  createdAt      DateTime @default(now())
+  status      RequestStatus @default(PENDING)
+  createdAt   DateTime      @default(now())
 
   @@unique([senderId, recipientId])
-  
 }
 
-
-
-
+model FriendShip {
+  id       String @id @default(cuid())
+  friend   User   @relation("friend", fields: [friendId], references: [id]) //Nikita - Fikret
+  friendId String
+  user     User   @relation("user", fields: [userId], references: [id]) //Fikret - Nikita
+  userId   String
+}
 
 model VerificationToken {
   identifier String
@@ -122,10 +113,7 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-
-
-
 model Post {
-  id     String   @id @default(cuid())
+  id   String @id @default(cuid())
   name String
 }

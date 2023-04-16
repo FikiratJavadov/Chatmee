@@ -1,5 +1,5 @@
 import ProfileSidebar from '@/components/ProfileSidebar';
-import { LogOut, UserPlus, Users } from 'lucide-react';
+import { LogOut, UserPlus, Users, UserCheck } from 'lucide-react';
 import Link from 'next/link';
 
 import LogoutButton from '@/components/LogoutButton';
@@ -8,11 +8,13 @@ import { authOptions } from '@/lib/auth';
 import { notFound } from 'next/navigation';
 import FriendRequestButton from '@/components/FriendRequestButton';
 import prisma from '@/lib/prisma';
+import { useRequest } from '@/zustand/request-store';
 
 const icons = {
   AddFriend: UserPlus,
   UserList: Users,
   Logout: LogOut,
+  Friends: UserCheck,
 };
 
 type Icon = keyof typeof icons;
@@ -30,6 +32,12 @@ const sidebarOptions: SidebarOptionsType = [
     href: '/dashboard/add',
     icons: 'AddFriend',
     text: 'Add friend',
+  },
+  {
+    id: 2,
+    href: '/dashboard/friends',
+    icons: 'Friends',
+    text: 'Friends',
   },
 ];
 
@@ -50,8 +58,13 @@ export default async function DashboardLayout({
     where: {
       recipientId: session.user.id,
     },
+    include: {
+      recipient: true,
+      sender: true,
+    },
   });
 
+  //* Get the count of reuqest
   const reuqestCount = friendRequests.length;
 
   return (
@@ -79,8 +92,10 @@ export default async function DashboardLayout({
               </li>
             );
           })}
-
           <FriendRequestButton numberOfUnseenRequests={reuqestCount} />
+
+          <hr />
+          <p className="py-4">Chats...</p>
         </ul>
 
         <div>
